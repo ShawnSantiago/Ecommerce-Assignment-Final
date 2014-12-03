@@ -1,4 +1,61 @@
-Parse.initialize("2k93EkRaSU7skSYXlSriYgALtNe4zIaTYrtEc8O4", "MieFImH6k1tZxm0XuVrBjH3d5VApXBHCCFpsO3cA");
+Parse.initialize("1JaV3GtEpGqKEjFkyAclKyLcge3VSZM00LooXB7U", "G5ricgzTKLLQc9uX9yObyfTnNjFQE5c7zqyRv6eH");
+
+
+var user = new Parse.User();
+
+function signupFn () {
+	user.set("username", document.getElementById('userNameField').value);
+	user.set("password", document.getElementById('passwordField').value);
+	// user.set("email", document.getElementById('emailField').value);
+	user.signUp(null, {
+		success:function(user) {
+			console.log("worked");
+			document.getElementById("one").style.display = 'block';
+			document.getElementById("two").style.display = 'none';
+		},
+		error:function(user, error) {
+			if (error.code == 202) {
+				alert("User already exists. Log In or create new account.")
+			};
+			console.log("error code" + error.code);	
+		}
+	});
+}
+
+function loginFn () {
+	user.set("username", document.getElementById('userNameField').value);
+	user.set("password", document.getElementById('passwordField').value);
+	user.logIn({
+		success:function(user) {
+			console.log("worked")
+			document.getElementById("one").style.display = 'block';
+			document.getElementById("two").style.display = 'none';
+		},
+		error:function(user, error) {
+			console.log("error code" + error.code);	
+			if (error.code == 101) {
+				alert("User account doesn't exist. Create new account first.")
+			};
+		}
+	});
+}
+// var StarRating = Parse.Object.extend("StarRatingDB");
+// var StarRatingNumber = new StarRating();
+// function starClicked(event) {
+// 	console.log(event.currentTarget.innerHTML);
+// 	StarRatingNumber.save({
+// 		"rating": event.currentTarget.id, 
+// 		"value" : event.currentTarget.innerHTML
+// 	},{
+// 		success: function(object) {
+// 		console.log("worked");
+// 		},
+// 		error: function(error) {
+// 		console.log("error code" + error.code);
+// 		}
+// 	});
+// };	
+
 
 var ProductObject = Parse.Object.extend("ProductDB");
 
@@ -43,6 +100,7 @@ function displayProduct(product) {
 	var div = document.createElement("div")
 	var img = document.createElement("img");
 	img.src = product.get("mainImage").url();
+	img.setAttribute("class", "popup");
 	div.appendChild(img)
 
 	
