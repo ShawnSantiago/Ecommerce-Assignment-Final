@@ -16,32 +16,38 @@
 </head>
 
 <body>
+<div class="container">
+  <nav class="clearfix nav" >
+  <div id="logo"><img src="shoe_logo.png" alt=""></div>
+    <ul>
+      <li>
+        <a href="">Home</a>
+      </li>
+      <li>
+        <a href="">Shoes</a>
+      </li>
+      <li>
+        <a href="">Contact</a>
+      </li>
+    </ul>
+  </nav>
+
   <div id="form">
       <input id="userNameField" type="text" placeholder="Username">
       <input id="passwordField" type="password" placeholder="Password">
-      <!-- <input id="emailField" type="email" placeholder="Email"> -->
       <input id="signupBtn" onclick="signupFn()" type="button" value="Sign Up">
       <input id="loginBtn" onclick="loginFn()" type="button" value="Login In">
-      <!-- <input id="linkField" type="text" placeholder="Enter URL">
-      <input id="addLink" onclick="addLinkFn()" type="button" value="Add">
-     --></div>
+      <input id="logOut" onclick="logOutFn()" type="button" value="Log Out">
+    </div>
+     
+      <input id="addProduct" type="file" value="Add Image">
+      <input type="submit" onclick="addProduct()">
+    <div id="currentUser" class="clearfix"> <p>Hello :</p></div>
   <div id="main"></div>
-
-<!--   <img id='image'> -->
-
-<!-- <form>
-  <select>
-    <option id="1start" value="1">1 Star</option>
-    <option id="2start" value="2">2 Star</option>
-    <option id="3start" value="3">3 Star</option>
-    <option id="4start" value="4">4 Star</option>
-    <option id="5start" value="5">5 Star</option>
-  </select>
-</form> -->
+  </div>
 
 </body>
 <script>
-  $('img.popup').popup();
 </script>
 
 </html>

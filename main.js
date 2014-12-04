@@ -1,18 +1,19 @@
 Parse.initialize("1JaV3GtEpGqKEjFkyAclKyLcge3VSZM00LooXB7U", "G5ricgzTKLLQc9uX9yObyfTnNjFQE5c7zqyRv6eH");
 
 
-var user = new Parse.User();
+
+
+var user = Parse.User.current();
 
 function signupFn () {
+	var user = new Parse.User();
 	user.set("username", document.getElementById('userNameField').value);
 	user.set("password", document.getElementById('passwordField').value);
 	// user.set("email", document.getElementById('emailField').value);
 	user.signUp(null, {
 		success:function(user) {
-			console.log("worked");
-			document.getElementById("one").style.display = 'block';
-			document.getElementById("two").style.display = 'none';
-		},
+			alert("Signed Up")
+					},
 		error:function(user, error) {
 			if (error.code == 202) {
 				alert("User already exists. Log In or create new account.")
@@ -23,13 +24,10 @@ function signupFn () {
 }
 
 function loginFn () {
-	user.set("username", document.getElementById('userNameField').value);
-	user.set("password", document.getElementById('passwordField').value);
-	user.logIn({
-		success:function(user) {
-			console.log("worked")
-			document.getElementById("one").style.display = 'block';
-			document.getElementById("two").style.display = 'none';
+	
+	Parse.User.logIn(document.getElementById('userNameField').value, document.getElementById('passwordField').value, {
+  		success: function(user) {
+			alert("Logged In")
 		},
 		error:function(user, error) {
 			console.log("error code" + error.code);	
@@ -39,65 +37,64 @@ function loginFn () {
 		}
 	});
 }
-// var StarRating = Parse.Object.extend("StarRatingDB");
-// var StarRatingNumber = new StarRating();
-// function starClicked(event) {
-// 	console.log(event.currentTarget.innerHTML);
-// 	StarRatingNumber.save({
-// 		"rating": event.currentTarget.id, 
-// 		"value" : event.currentTarget.innerHTML
-// 	},{
-// 		success: function(object) {
-// 		console.log("worked");
-// 		},
-// 		error: function(error) {
-// 		console.log("error code" + error.code);
-// 		}
-// 	});
-// };	
 
+function logOutFn() {
+	Parse.User.logOut({
+	success: function() {
+  		alert("logged out");
+  	},
+	error: function(object, error) {
+	    	console.log("error code" + error.code);
+	}
+	})
+}
 
 var ProductObject = Parse.Object.extend("ProductDB");
 
 function addProduct() {
-	var product = new ProductObject();
-	product.set("title", "Vanhawks Bike");
-	product.save({
-		success: function(object) {
-			//worked
-		},
-		error: function(model, error) {
-			//error
-		}
-	})
+	var product = new ProductObject;
+	var file = [];
+	var files = document.getElementById('addProduct').files;
+	for(var i=0; i<files.length; i++){
+	file = document.getElementById('addProduct').files[i];
+	var name = document.getElementById('addProduct').files[i].name;
+	var parseFile = new Parse.File(name, file);
+	}
+  	parseFile.save().then(function() {
+	    var product = new ProductObject;
+
+		product.set("mainImage", parseFile);
+		product.set("featured", false);
+		product.set("price", 69.99);
+		product.save();
+		alert("worked")
+  	}, function(error) {
+    	console.log("error :"+error.code)
+  });
+
 };
 
 var query = new Parse.Query(ProductObject);
-//query.equalTo("title", "Vanhawks Bike");
 query.find({
 	success: function(results) {
 		console.log(results);
+		displaycurrentUser();
 		for(var i=0; i<results.length; i++){
 			var product = results[i];
 			var img = product.get("mainImage");
-			console.log(img.url());
+			// console.log(img.url());
 			//document.getElementById("image").src = img.url();
 			displayProduct(product);
 		}
 	},
 	error: function(error) {
-		//error
+		console.log("error code" + error.code);
 	}
 })
-function getAverage(array) {
-	var total = 0;
-	for (var i=0; i<array.length; i++) {
-		total += array[i];
-	}
-	return total/array.length;
-}
+
 function displayProduct(product) {
 	var div = document.createElement("div")
+	div.id = "products";
 	var img = document.createElement("img");
 	img.src = product.get("mainImage").url();
 	img.setAttribute("class", "popup");
@@ -109,35 +106,76 @@ function displayProduct(product) {
 	}
 
 	var form = document.createElement("form");
-	var select = document.createElement("select");
-	select.ratings = product.get("rating");
-	select.product = product;
-	select.onchange = addRating;
-	form.appendChild(select);
-	div.appendChild(form)
-	for (var i=0; i<5; i++) {
-		var option = document.createElement("option");
-		option.innerText = i + " star";
-		option.setAttribute("id", i + " star");
-		option.setAttribute("value", i);
-		select.appendChild(option);
-	}
-	var productRating = document.createElement("label");
-	productRating.innerText = "the rating is " + getAverage(product.get("rating")).toFixed(2) + " stars.";
+	div.appendChild(form);
 
+	var favouriteBtn = document.createElement("input");
+	favouriteBtn.type = "button";
+	favouriteBtn.value = "fav";
+	favouriteBtn.setAttribute("onclick" ,"favourite()");
+	favouriteBtn.id = product.id;
+
+	var price = document.createElement('p');
+	price.innerText = "$ " + product.attributes.price;
+	form.appendChild(price)
+
+
+
+	form.appendChild(favouriteBtn)
+	
+	
+	
 	document.getElementById("main").appendChild(div);
 	
 }
 
-function addRating() {
-	console.log(this.value);
-	console.log(this.ratings);
-	this.ratings.push(parseInt(this.value));
-	console.log(this.product);
-	// this.product.set("rating", newRatingArray);
-	this.product.save();
-	Parse.Analytics.track("ratingAdded", {'product':this.product.get('title'), 'rating': this.value});
+function favourite(e) {
+	var currentId = event.currentTarget.id;
+	var query = new Parse.Query(ProductObject);
+	query.equalTo("objectId", currentId);
+	query.first({
+  		success: function(results) {
+
+  			if (results.attributes.featured == false) {
+  			results.set("user", user);
+    		results.set("featured", true);
+   			results.save();
+   			alert("favourited")
+   			} else {
+   				results.set("user", user);
+   				results.set("featured", false);
+   				results.save();
+   				alert("Unfavourited")
+   			}
+  		},
+  	error: function(error) {
+    	 console.log("Error: " + error.code + " " + error.message);
+  		}
+	});	
 }
+
+function displaycurrentUser () {
+	if (user == null) {
+		
+	} else {
+		var currentUserdiv = document.getElementById('currentUser');
+		var currentUserDisplay = document.createElement("p");
+		currentUserDisplay.innerText = user.attributes.username;
+		
+		currentUserdiv.appendChild(currentUserDisplay);
+	}
+}
+
+
+
+// function addRating() {
+// 	// console.log(this.value);
+// 	// console.log(this.ratings);
+// 	this.ratings.push(parseInt(this.value));
+// 	// console.log(this.product);
+// 	// this.product.set("rating", newRatingArray);
+// 	this.product.save();
+// 	Parse.Analytics.track("ratingAdded", {'product':this.product.get('title'), 'rating': this.value});
+// }
 
 
 
