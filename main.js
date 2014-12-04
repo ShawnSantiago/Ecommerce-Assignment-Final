@@ -40,12 +40,12 @@ function loginFn () {
 
 function logOutFn() {
 	Parse.User.logOut({
-	success: function() {
-  		alert("logged out");
-  	},
-	error: function(object, error) {
+		success: function() {
+  			alert("logged out");
+  		},
+		error: function(object, error) {
 	    	console.log("error code" + error.code);
-	}
+		}
 	})
 }
 
